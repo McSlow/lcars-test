@@ -1,5 +1,6 @@
 import psutil
 from functools import reduce
+from requests import get, post
 import config
 
 def get_ip_address_string():
@@ -38,4 +39,23 @@ def interface_to_ip(interface):
             return record.address
 
     return None
+
+def get_stuff():
+    url = 'http://192.168.1.101:8123/api/states/light.flurschrank'
+    headers = {
+                'Authorization': 'Bearer jdc4ttMJKSc9gw2kCVq9g4pBMbzJf-h19M8OOvNlnU',
+                    'content-type': 'application/json',
+                    }
+
+    response = get(url, headers=headers)
+    return response.text
+
+def set_ikea():
+    url = 'http://192.168.1.101:8123/api/services/light/toggle'
+    headers = {
+                'Authorization': 'Bearer MJKSc9gw2kCVq9g4pBMbzJf-h19M8OOvNlnU',
+                    'content-type': 'application/json',
+                    }
+    data = '{"entity_id": "light.flurschrank"}'
+    response = post(url, headers=headers, data=data)
 

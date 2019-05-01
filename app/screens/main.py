@@ -1,14 +1,17 @@
 from datetime import datetime
+import json
 
 from ui.widgets.background import LcarsBackgroundImage, LcarsImage
 from ui.widgets.gifimage import LcarsGifImage
 from ui.widgets.lcars_widgets import *
 from ui.widgets.screen import LcarsScreen
 
-from datasources.network import get_ip_address_string
+from datasources.network import get_ip_address_string, get_stuff, set_ikea
 
 
 class ScreenMain(LcarsScreen):
+    def getStuff(self):
+        return json.loads(get_stuff())["state"]
     def setup(self, all_sprites):
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1b.png"),
                         layer=0)
@@ -31,14 +34,14 @@ class ScreenMain(LcarsScreen):
         all_sprites.add(self.ip_address, layer=1)
 
         # info text
+        self.stuff = LcarsText(colours.BLUE, (244, 174), self.getStuff() , 1.5)
         all_sprites.add(LcarsText(colours.WHITE, (192, 174), "EVENT LOG:", 1.5),
                         layer=3)
-        all_sprites.add(LcarsText(colours.BLUE, (244, 174), "2 ALARM ZONES TRIGGERED", 1.5),
-                        layer=3)
-        all_sprites.add(LcarsText(colours.BLUE, (286, 174), "14.3 kWh USED YESTERDAY", 1.5),
-                        layer=3)
-        all_sprites.add(LcarsText(colours.BLUE, (330, 174), "1.3 Tb DATA USED THIS MONTH", 1.5),
-                        layer=3)
+        all_sprites.add(self.stuff, layer=3)
+        #all_sprites.add(LcarsText(colours.BLUE, (286, 174), "14.3 kWh USED YESTERDAY", 1.5),
+        #                layer=3)
+        #all_sprites.add(LcarsText(colours.BLUE, (330, 174), "1.3 Tb DATA USED THIS MONTH", 1.5),
+        #                layer=3)
         self.info_text = all_sprites.get_sprites_from_layer(3)
 
         # date display
@@ -80,6 +83,7 @@ class ScreenMain(LcarsScreen):
     def update(self, screenSurface, fpsClock):
         if pygame.time.get_ticks() - self.lastClockUpdate > 1000:
             self.stardate.setText("STAR DATE {}".format(datetime.now().strftime("%d%m.%y %H:%M:%S")))
+            self.stuff.setText(self.getStuff())
             self.lastClockUpdate = pygame.time.get_ticks()
         LcarsScreen.update(self, screenSurface, fpsClock)
 
@@ -112,12 +116,14 @@ class ScreenMain(LcarsScreen):
         self.weather.visible = False
 
     def weatherHandler(self, item, event, clock):
-        self.hideInfoText()
-        self.sensor_gadget.visible = False
-        self.dashboard.visible = False
-        self.weather.visible = True
+        #self.hideInfoText()
+        #self.sensor_gadget.visible = False
+        #self.dashboard.visible = False
+        #self.weather.visible = True
+        set_ikea()
 
     def homeHandler(self, item, event, clock):
+        self.stuff.setText(self.getStuff())
         self.showInfoText()
         self.sensor_gadget.visible = False
         self.dashboard.visible = False
